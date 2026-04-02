@@ -236,6 +236,44 @@ void Search::Worker::start_searching() {
         && rootMoves[0].pv[0] != Move::none())
         bestThread = threads.get_best_thread()->worker.get();
 
+    // Tigerfish 3A: sharpness-aware root-move tiebreaker.
+    //
+    // When Tiger is active, the top two root moves score close together, and
+    // the position is genuinely sharp, prefer the move that attacks more squares
+    // in the enemy king ring.  This makes Tiger's aggressive personality visible
+    // in actual move selection, not just search statistics.
+    //
+    // Tiebreaker window: antiDraw/2 cp, further scaled by sharpness/256 so
+    // the effect is nearly invisible in quiet/endgame positions (sharpness ≈ 0)
+    // and fully active in attacking positions (sharpness ≈ 256).
+    //
+    // Safety: only fires under MultiPV==1, non-decisive scores, and when both
+    // candidates have a valid score.  Uses pure bitboard arithmetic — no
+    // do_move/undo_move, no correctness impact.
+    if (tigerCfg.enabled
+        && int(options["MultiPV"]) == 1
+        && tigerCfg.sharpness > 0
+        && bestThread->rootMoves.size() >= 2
+        && !is_decisive(bestThread->rootMoves[0].score))
+    {
+        RootMoves& rm = bestThread->rootMoves;
+
+        // Tiebreaker window scales with both antiDraw setting and sharpness.
+        // At antiDraw=50, sharpness=256: window = 25 cp (≈ quarter pawn).
+        // At antiDraw=50, sharpness=20:  window =  2 cp (almost never fires).
+        const int window = tigerCfg.antiDraw * tigerCfg.sharpness / (2 * 256);
+
+        if (window > 0
+            && rm[1].score != -VALUE_INFINITE
+            && rm[0].score - rm[1].score <= window)
+        {
+            const int atk0 = tiger_move_king_attacks(bestThread->rootPos, rm[0].pv[0]);
+            const int atk1 = tiger_move_king_attacks(bestThread->rootPos, rm[1].pv[0]);
+            if (atk1 > atk0)
+                std::swap(rm[0], rm[1]);
+        }
+    }
+
     main_manager()->bestPreviousScore        = bestThread->rootMoves[0].score;
     main_manager()->bestPreviousAverageScore = bestThread->rootMoves[0].averageScore;
 

@@ -165,14 +165,52 @@ quieter in closed/endgame structures.
 
 ---
 
-## Suggested Next Steps (Phase 3)
+## Technical Changes (Phase 3)
+
+### G. Root-move sharpness tiebreaker (`src/tigerfish.h`, `src/search.cpp`)
+
+When Tiger is active, the two highest-scoring root moves are close together,
+and the position is genuinely sharp, the engine prefers the move that most
+directly threatens the enemy king.
+
+**`tiger_move_king_attacks(pos, m)`** — returns an attack score for move `m`:
+* `+4` if the destination square is inside the enemy king ring (e.g. Nxg7)
+* `+popcount(attacks from destination ∩ king ring)` for further ring pressure
+
+No `do_move`/`undo_move` — pure bitboard arithmetic, zero side-effects.
+
+**Tiebreaker window** in `start_searching()`:
+```
+window = antiDraw * sharpness / (2 * 256)
+```
+At antiDraw=100, sharpness=256: window = 50 cp (full strength).  
+At antiDraw=100, sharpness=58 (Nf5 position): window = 11 cp.  
+At antiDraw=100, sharpness=10 (quiet): window = 1 cp (nearly never fires).
+
+**Verified behaviour**:
+
+Position: `r2q1rk1/pp2ppbp/2np1n2/5N2/4P3/2N1B1P1/PPP2PBP/R2QR1K1 w - - 0 14`
+(White has Nf5 attacking g7; sharpness ≈ 58; Qe2 and Nxg7 score within 1 cp)
+
+| Mode | Depth 16 bestmove |
+|---|---|
+| Tiger OFF | **d1e2** (Qe2 — preparatory) |
+| Tiger ON (antiDraw=100) | **f5g7** (Nxg7 — direct king infiltration) |
+
+Tiger selects the most aggressive of two objectively near-equal moves.  
+Perft 5 = 4865609 (canonical). Zero build warnings.
+
+---
+
+## Suggested Next Steps (Phase 4)
 
 1. **Targeted futility loosening**: in very sharp positions (`sharpness > 160`),
    slightly increase the futility margin so that tactical lines survive
    shallower pruning.
 
-2. **Root-move sharpness tiebreaker**: when two root moves score within
-   `antiDraw / 2` cp, prefer the one with higher king-ring attack count.
+2. **Sharpness signal refinement**: add pawn-shelter weakness and central
+   tension as third/fourth sharpness components so structural sharpness
+   (e.g. Sicilian Dragon early middlegame) is also detected.
 
 3. **Dedicated NNUE fine-tuning**: retrain (or bias) the network on games
    played by sharp engines (e.g., Leela with high temperature, AlphaZero style

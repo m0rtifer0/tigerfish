@@ -115,6 +115,65 @@ inline int tiger_sharpness(const Position& pos) {
     return std::min(score, 256);
 }
 
+// ---------------------------------------------------------------------------
+// tiger_move_king_attacks
+//
+// Estimates how many squares in the enemy king ring the moved piece will
+// attack from its destination square.  Used by the root-move tiebreaker
+// (Phase 3A) to prefer more aggressive moves when two candidates score
+// within the tiebreaker window.
+//
+// Design:
+//   * No do_move/undo_move — uses bitboard arithmetic only, so it is O(1)
+//     and has zero side-effects on the position.
+//   * Occupied bitboard is adjusted to reflect the move (piece removed from
+//     source, placed at destination; captured piece already there is ignored
+//     because the piece still blocks/unblocks lines in the same way).
+//   * Promotions use the promoted piece type; en passant and castling return
+//     0 (rare and less relevant to direct king pressure).
+// ---------------------------------------------------------------------------
+inline int tiger_move_king_attacks(const Position& pos, Move m) {
+    if (!m.is_ok())
+        return 0;
+
+    const MoveType mt = m.type_of();
+    if (mt == EN_PASSANT || mt == CASTLING)
+        return 0;
+
+    Color    us        = pos.side_to_move();
+    Color    them      = ~us;
+    Square   theirKing = pos.square<KING>(them);
+    Bitboard kingRing  = attacks_bb<KING>(theirKing);
+    Square   from      = m.from_sq();
+    Square   to        = m.to_sq();
+
+    // Occupied squares after the move: remove 'from', add 'to'.
+    // (Captures: the captured piece on 'to' is replaced — same result.)
+    Bitboard occ = (pos.pieces() ^ square_bb(from)) | square_bb(to);
+
+    // Piece type after the move (promotion changes the type).
+    PieceType pt = (mt == PROMOTION) ? m.promotion_type()
+                                     : type_of(pos.piece_on(from));
+
+    // Pawns and kings rarely contribute direct king-ring pressure via this
+    // metric, and pawn pseudo-attacks need a colour argument — skip them.
+    if (pt == PAWN || pt == KING)
+        return 0;
+
+    int score = 0;
+
+    // Bonus for the piece landing directly inside the king ring (e.g. Nxg7).
+    // A piece that infiltrates the king's immediate vicinity is strongly
+    // aggressive and deserves the highest weight.
+    if (square_bb(to) & kingRing)
+        score += 4;
+
+    // Count king-ring squares attacked from the new square.
+    score += popcount(attacks_bb(pt, to, occ) & kingRing);
+
+    return score;
+}
+
 }  // namespace Stockfish
 
 #endif  // #ifndef TIGERFISH_H_INCLUDED
