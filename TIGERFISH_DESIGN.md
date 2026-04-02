@@ -127,22 +127,56 @@ moves that don't obviously lose material benefit from this.
 
 ---
 
-## Suggested Next Steps (Phase 2)
+## Technical Changes (Phase 2)
 
-1. **Per-position sharpness signal**: compute `tiger_sharpness(pos)` based on
-   king ring attacks, open files near enemy king, and piece activity to scale
-   Tiger effects only in genuinely sharp positions — reducing node overhead in
-   quiet positions.
+### F. Per-position sharpness signal (`src/tigerfish.h`)
 
-2. **Targeted futility loosening**: in very sharp positions, slightly increase
-   the futility margin so that tactical lines survive shallower pruning.
+`tiger_sharpness(pos)` returns 0–256 measuring how tactically sharp the
+current root position is.  Two independent signals:
+
+1. **Attacker count** – our non-pawn pieces that reach the enemy king ring
+   (squares adjacent to enemy king).  Each piece +48 pts, capped at 4
+   (max 192 pts).
+2. **Open-file bonus** – fully open files adjacent to the enemy king = +2 pts,
+   semi-open (no enemy pawn) = +1 pt.  Max 6 pts × 10 = 60 pts.
+
+Result is capped at 256.  Computed once per `iterative_deepening()` call from
+`rootPos` and stored in `tigerCfg.sharpness`.
+
+All four Tigerfish effect sites now multiply their contribution by
+`sharpness / 256`:
+
+| Effect | Full-strength formula | Scaled formula |
+|--------|----------------------|----------------|
+| Optimism aggression boost | `opt * aggr / 500` | `opt * aggr * sharpness / (500 * 256)` |
+| AntiDraw bonus | `antiDraw * (100-\|avg\|) / 300` | `antiDraw * sharpness * (100-\|avg\|) / (300*256)` |
+| LMR check reduction | `risk * 512 / 100` | `risk * sharpness * 2 / 100` |
+| Check ordering bonus | `aggr * 50` | `aggr * sharpness * 50 / 256` |
+
+**Verified behaviour** (depth 15, `TigerAggression=TigerRisk=100`):
+
+| Position type | sharpness (est.) | Tiger OFF nodes | Tiger ON nodes | Ratio |
+|---|---|---|---|---|
+| 3 attackers on king ring | ≈56% (144/256) | 33 032 | 53 101 | **+61%** |
+| King+pawn endgame | ≈8% (20/256) | 45 366 | 64 139 | **+41%** |
+
+Tiger is visibly more aggressive in attacking positions and proportionally
+quieter in closed/endgame structures.
+
+---
+
+## Suggested Next Steps (Phase 3)
+
+1. **Targeted futility loosening**: in very sharp positions (`sharpness > 160`),
+   slightly increase the futility margin so that tactical lines survive
+   shallower pruning.
+
+2. **Root-move sharpness tiebreaker**: when two root moves score within
+   `antiDraw / 2` cp, prefer the one with higher king-ring attack count.
 
 3. **Dedicated NNUE fine-tuning**: retrain (or bias) the network on games
    played by sharp engines (e.g., Leela with high temperature, AlphaZero style
    games) to further shift the positional taste without changing architecture.
-
-4. **Root-move sharpness tiebreaker**: when two root moves score within
-   `antiDraw / 2` cp, prefer the one with higher king-ring attack count.
 
 ---
 

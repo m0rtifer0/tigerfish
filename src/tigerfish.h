@@ -9,6 +9,11 @@
 #ifndef TIGERFISH_H_INCLUDED
 #define TIGERFISH_H_INCLUDED
 
+#include <algorithm>
+
+#include "bitboard.h"
+#include "position.h"
+
 namespace Stockfish {
 
 // ---------------------------------------------------------------------------
@@ -44,7 +49,71 @@ struct TigerConfig {
     //     nudging the engine toward initiative rather than peaceful simplification.
     // Default 50 gives a noticeable but not overwhelming anti-draw nudge.
     int antiDraw = 50;
+
+    // 0-256.  Per-search positional sharpness of the root position.
+    //   Computed once per iterative_deepening() call via tiger_sharpness(rootPos).
+    //   All Tiger effects are multiplied by (sharpness / 256) so they scale up in
+    //   genuinely attacking positions and fade out in quiet/endgame structures.
+    //   Never set by the user — derived automatically.
+    int sharpness = 0;
 };
+
+// ---------------------------------------------------------------------------
+// tiger_sharpness
+//
+// Estimates how tactically sharp/attacking the current position is.
+// Returns 0-256:
+//   0   = dead quiet (closed endgame, sterile structure)
+//   256 = full-throttle king attack
+//
+// Two independent signals are combined:
+//   1. Attacker count  – our non-pawn pieces that hit the enemy king ring.
+//      Each piece contributes up to 4 * 48 = 192 pts.
+//   2. Open-file bonus – open/semi-open files next to the enemy king
+//      that provide highways for rooks and queens.
+//      Up to 6 file-points * 10 = 60 pts.
+//
+// Total is capped at 256.  The computation is O(pieces) — cheap enough to
+// call once per iterative_deepening() call.
+// ---------------------------------------------------------------------------
+inline int tiger_sharpness(const Position& pos) {
+
+    Color    us        = pos.side_to_move();
+    Color    them      = ~us;
+    Square   theirKing = pos.square<KING>(them);
+    Bitboard kingRing  = attacks_bb<KING>(theirKing);
+    Bitboard occ       = pos.pieces();
+
+    // --- Component 1: pieces attacking enemy king ring ----------------------
+    // Only non-pawn, non-king pieces of the side to move are considered.
+    Bitboard attackers = pos.pieces(us) & ~pos.pieces(us, PAWN) & ~pos.pieces(us, KING);
+    int kingAttackers  = 0;
+    while (attackers)
+    {
+        Square s = pop_lsb(attackers);
+        if (attacks_bb(pos.piece_on(s), s, occ) & kingRing)
+            ++kingAttackers;
+    }
+    int score = std::min(kingAttackers, 4) * 48;   // max 192
+
+    // --- Component 2: open / semi-open files near enemy king ----------------
+    // Fully open (no pawns at all) = 2 pts; semi-open (no enemy pawn) = 1 pt.
+    // We check the king file plus one file on each side.
+    int kf        = static_cast<int>(file_of(theirKing));
+    int fileScore = 0;
+    for (int df = -1; df <= 1; ++df)
+    {
+        int fi = kf + df;
+        if (fi < FILE_A || fi > FILE_H)
+            continue;
+        Bitboard fileMask = file_bb(static_cast<File>(fi));
+        if (!(pos.pieces(PAWN) & fileMask))             fileScore += 2;  // open
+        else if (!(pos.pieces(them, PAWN) & fileMask))  fileScore += 1;  // semi-open
+    }
+    score += std::min(fileScore, 6) * 10;   // max 60
+
+    return std::min(score, 256);
+}
 
 }  // namespace Stockfish
 

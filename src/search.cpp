@@ -264,6 +264,11 @@ void Search::Worker::iterative_deepening() {
     tigerCfg.aggression = int(options["TigerAggression"]);
     tigerCfg.risk       = int(options["TigerRisk"]);
     tigerCfg.antiDraw   = int(options["TigerAntiDraw"]);
+    // Sharpness is computed from the root position once per search so that
+    // Tiger effects are strong in genuinely attacking positions and near-zero
+    // in quiet/endgame structures.  All four Tiger effect sites multiply their
+    // contribution by (sharpness / 256).
+    tigerCfg.sharpness  = tigerCfg.enabled ? tiger_sharpness(rootPos) : 0;
 
     SearchManager* mainThread = (is_mainthread() ? main_manager() : nullptr);
 
@@ -369,20 +374,26 @@ void Search::Worker::iterative_deepening() {
 
             // Tigerfish: scale optimism up for aggression and anti-draw.
             //
-            // Aggression: adds up to +20% of existing optimism at aggression=100.
-            // At max optimism (≈144 internal units) this is at most ~28 extra units
-            // ≈ 4-5 cp net eval shift → controlled, bounded.
+            // Both bonuses are further multiplied by (sharpness / 256) so that
+            // they are strong in genuine king-attack positions and fade in
+            // closed/endgame structures.
+            //
+            // Aggression: adds up to +20% of existing optimism at aggression=100,
+            // sharpness=256.  At max optimism (≈144 units) this is ≈28 extra units
+            // ≈ 4-5 cp — controlled and bounded.
             //
             // AntiDraw: flat bonus near equality (|avg| < 100 cp) to push for
             // initiative. Tapers to zero as the score grows.  Max +33 units
-            // at antiDraw=100 and a dead-equal position ≈ 5 cp.
-            if (tigerCfg.enabled)
+            // at antiDraw=100, sharpness=256, avg=0 ≈ 5 cp.
+            if (tigerCfg.enabled && tigerCfg.sharpness > 0)
             {
-                optimism[us] += optimism[us] * tigerCfg.aggression / 500;
+                optimism[us] += optimism[us] * tigerCfg.aggression * tigerCfg.sharpness
+                                / (500 * 256);
 
                 if (tigerCfg.antiDraw > 0 && std::abs(avg) < 100)
                 {
-                    int antiBonus = tigerCfg.antiDraw * (100 - std::abs(avg)) / 300;
+                    int antiBonus = tigerCfg.antiDraw * tigerCfg.sharpness
+                                    * (100 - std::abs(avg)) / (300 * 256);
                     optimism[us] += antiBonus;
                 }
 
@@ -1042,10 +1053,13 @@ moves_loop:  // When in check, search starts here
       (ss - 4)->continuationHistory, (ss - 5)->continuationHistory, (ss - 6)->continuationHistory};
 
 
-    // Tigerfish: pass scaled check-move ordering bonus.  At aggression=100 this
-    // adds 5 000 to the base 16 384 bonus for checking quiets (~30% increase).
-    // Gated behind tigerCfg.enabled; zero means identical to vanilla behaviour.
-    int tigerCheckBonus = tigerCfg.enabled ? tigerCfg.aggression * 50 : 0;
+    // Tigerfish: pass scaled check-move ordering bonus.  At aggression=100,
+    // sharpness=256 this adds 5 000 to the base 16 384 bonus for checking
+    // quiets (~30% increase).  Scaled by positional sharpness so that the bonus
+    // is proportional to how genuinely attacking the root position is.
+    int tigerCheckBonus = tigerCfg.enabled
+                            ? tigerCfg.aggression * tigerCfg.sharpness * 50 / 256
+                            : 0;
 
     MovePicker mp(pos, ttData.move, depth, &mainHistory, &lowPlyHistory, &captureHistory, contHist,
                   &sharedHistory, ss->ply, tigerCheckBonus);
@@ -1283,12 +1297,13 @@ moves_loop:  // When in check, search starts here
 
         // Tigerfish: check lines are a core part of Tiger's attacking character.
         // Reduce LMR for moves that give check so the engine searches them more
-        // deeply. Effect is gated by TigerRisk (0-100).
+        // deeply. Effect is gated by TigerRisk (0-100) and scaled by positional
+        // sharpness so that deep checking-line search is reserved for sharp positions.
         //
-        // Bound: at risk=100, r is reduced by at most 512 units (½ ply).
-        // SEE / legality filters upstream already guard against bad sacrifices.
-        if (tigerCfg.enabled && givesCheck && tigerCfg.risk > 0)
-            r -= tigerCfg.risk * 512 / 100;
+        // Bound: at risk=100, sharpness=256, r is reduced by at most 512 units (½
+        // ply).  SEE / legality filters upstream already guard against bad sacrifices.
+        if (tigerCfg.enabled && givesCheck && tigerCfg.risk > 0 && tigerCfg.sharpness > 0)
+            r -= tigerCfg.risk * tigerCfg.sharpness * 2 / 100;
 
         // Step 17. Late moves reduction / extension (LMR)
         if (depth >= 2 && moveCount > 1)
@@ -1677,7 +1692,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     // captures, or evasions only when in check.
     MovePicker mp(pos, ttData.move, DEPTH_QS, &mainHistory, &lowPlyHistory, &captureHistory,
                   contHist, &sharedHistory, ss->ply,
-                  tigerCfg.enabled ? tigerCfg.aggression * 50 : 0);
+                  tigerCfg.enabled ? tigerCfg.aggression * tigerCfg.sharpness * 50 / 256 : 0);
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain or a beta
     // cutoff occurs.

@@ -15,7 +15,13 @@
       "Bash(printf 'ucinewgame\\\\nposition fen %s\\\\ngo depth 14\\\\n' 'r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1BP2/PPP3PP/R2QKB1R w KQ - 0 9')",
       "Bash(printf 'ucinewgame\\\\nposition fen %s\\\\ngo depth 16\\\\n' 'r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1BP2/PPP3PP/R2QKB1R w KQ - 0 9')",
       "Bash(printf 'ucinewgame\\\\nposition fen %s\\\\ngo movetime 3000\\\\n' 'r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1BP2/PPP3PP/R2QKB1R w KQ - 0 9')",
-      "Bash(printf 'setoption name TigerMode value true\\\\nsetoption name TigerAggression value 100\\\\nsetoption name TigerRisk value 100\\\\nsetoption name TigerAntiDraw value 100\\\\nucinewgame\\\\nposition fen %s\\\\ngo movetime 4000\\\\nquit\\\\n' 'r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1BP2/PPP3PP/R2QKB1R w KQ - 0 9')"
+      "Bash(printf 'setoption name TigerMode value true\\\\nsetoption name TigerAggression value 100\\\\nsetoption name TigerRisk value 100\\\\nsetoption name TigerAntiDraw value 100\\\\nucinewgame\\\\nposition fen %s\\\\ngo movetime 4000\\\\nquit\\\\n' 'r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1BP2/PPP3PP/R2QKB1R w KQ - 0 9')",
+      "Bash(/home/cengizsezer/Workspace/tigerfish/src/tigerfish)",
+      "Bash(printf \"uci\\\\nisready\\\\nsetoption name TigerMode value false\\\\nposition fen r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1BP2/PPP3PP/R2QKB1R w KQ - 0 9\\\\ngo depth 14\\\\nquit\\\\n\")",
+      "Bash(printf \"uci\\\\nisready\\\\nposition fen r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1BP2/PPP3PP/R2QKB1R w KQ - 0 9\\\\ngo depth 14\\\\nquit\\\\n\")",
+      "Bash(printf \"uci\\\\nisready\\\\nposition fen r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1BP2/PPP3PP/R2QKB1R w KQ - 0 9\\\\ngo movetime 3000\\\\nquit\\\\n\")",
+      "Bash(printf \"uci\\\\nisready\\\\nposition fen r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1BP2/PPP3PP/R2QKB1R w KQ - 0 9\\\\ngo depth 14\\\\n\")",
+      "Bash(printf \"bench 16 1 10\\\\nquit\\\\n\")"
     ]
   }
 }
