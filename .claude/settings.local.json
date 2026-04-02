@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"engine_info\\\\|version\\\\|VERSION\" /home/cengizsezer/Workspace/tigerfish/src/*.h /home/cengizsezer/Workspace/tigerfish/src/*.cpp)",
+      "Bash(ls /home/cengizsezer/Workspace/tigerfish/src/*.nnue)",
+      "Bash(ls /home/cengizsezer/Workspace/tigerfish/src/nnue/*.nnue)",
+      "Bash(wget -q --show-progress \"https://tests.stockfishchess.org/api/nn/nn-9a0cc2a62c52.nnue\" -O nn-9a0cc2a62c52.nnue)",
+      "Bash(wget -q \"https://tests.stockfishchess.org/api/nn/nn-47fc8b7fff06.nnue\" -O nn-47fc8b7fff06.nnue)",
+      "Bash(./tigerfish)",
+      "Bash(printf \"ucinewgame\\\\nposition startpos\\\\ngo depth 10\\\\n\")",
+      "Bash(printf \"setoption name TigerMode value true\\\\nucinewgame\\\\nposition startpos\\\\ngo depth 10\\\\n\")",
+      "Bash(printf \"position startpos\\\\ngo perft 5\\\\n\")",
+      "Bash(printf 'position startpos\\\\ngo perft 5\\\\n')",
+      "Bash(echo \"Perft 5 result: $\\(printf 'position startpos\\\\ngo perft 5\\\\n')",
+      "Bash(printf 'ucinewgame\\\\nposition fen %s\\\\ngo depth 14\\\\n' 'r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1BP2/PPP3PP/R2QKB1R w KQ - 0 9')",
+      "Bash(printf 'ucinewgame\\\\nposition fen %s\\\\ngo depth 16\\\\n' 'r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1BP2/PPP3PP/R2QKB1R w KQ - 0 9')",
+      "Bash(printf 'ucinewgame\\\\nposition fen %s\\\\ngo movetime 3000\\\\n' 'r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1BP2/PPP3PP/R2QKB1R w KQ - 0 9')",
+      "Bash(printf 'setoption name TigerMode value true\\\\nsetoption name TigerAggression value 100\\\\nsetoption name TigerRisk value 100\\\\nsetoption name TigerAntiDraw value 100\\\\nucinewgame\\\\nposition fen %s\\\\ngo movetime 4000\\\\nquit\\\\n' 'r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1BP2/PPP3PP/R2QKB1R w KQ - 0 9')"
+    ]
+  }
+}
