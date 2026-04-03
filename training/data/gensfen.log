@@ -1,0 +1,116 @@
+Stockfish 030426 by the Stockfish developers (see AUTHORS file)
+id name Stockfish 030426
+id author the Stockfish developers (see AUTHORS file)
+
+option name Debug Log File type string default 
+option name Threads type spin default 1 min 1 max 512
+option name Hash type spin default 16 min 1 max 33554432
+option name Clear Hash type button
+option name Ponder type check default false
+option name MultiPV type spin default 1 min 1 max 500
+option name Skill Level type spin default 20 min 0 max 20
+option name Move Overhead type spin default 10 min 0 max 5000
+option name Slow Mover type spin default 100 min 10 max 1000
+option name nodestime type spin default 0 min 0 max 10000
+option name UCI_Chess960 type check default false
+option name UCI_AnalyseMode type check default false
+option name UCI_LimitStrength type check default false
+option name UCI_Elo type spin default 1350 min 1350 max 2850
+option name UCI_ShowWDL type check default false
+option name SyzygyPath type string default <empty>
+option name SyzygyProbeDepth type spin default 1 min 1 max 100
+option name Syzygy50MoveRule type check default true
+option name SyzygyProbeLimit type spin default 7 min 0 max 7
+option name Use NNUE type combo default true var true var false var pure
+option name EvalFile type string default nn-3c0aa92af1da.nnue
+option name SkipLoadingEval type check default false
+option name EvalSaveDir type string default evalsave
+option name PruneAtShallowDepth type check default true
+option name EnableTranspositionTable type check default true
+uciok
+readyok
+INFO: Executing generate_training_data command
+INFO: Parameters:
+  - search_depth_min       = 9
+  - search_depth_max       = 9
+  - nodes                  = 0
+  - count                  = 10000000
+  - max_time_seconds       = 8000000000
+  - eval_limit             = 3000
+  - num threads (UCI)      = 12
+  - random_move_min_ply    = 1
+  - random_move_max_ply    = 24
+  - random_move_count      = 8
+  - random_move_like_apery = 0
+  - random_multi_pv        = 4
+  - random_multi_pv_diff   = 50
+  - random_multi_pv_depth  = 4
+  - random_multi_pv_nodes  = 0
+  - write_min_ply          = 16
+  - write_max_ply          = 400
+  - book                   = 
+  - output_file_name       = /home/cengizsezer/Workspace/tigerfish/training/data/tiger_train_001.binpack
+  - save_every             = 18446744073709551615
+  - random_file_name       = 0
+  - write_drawn_games      = 0
+  - draw by low score      = 1
+  - draw by insuff. mat.   = 1
+info string NNUE evaluation using nn-3c0aa92af1da.nnue enabled
+INFO (sfen_writer): Creating new data file at /home/cengizsezer/Workspace/tigerfish/training/data/tiger_train_001.binpack
+PRNG::seed = 59e72e88d4affa64
+
+0 sfens, at Fri Apr  3 18:11:24 2026
+........................................
+200000 sfens, 622 sfens/second, at Fri Apr  3 18:16:46 2026
+........................................
+400000 sfens, 675 sfens/second, at Fri Apr  3 18:21:42 2026
+........................................
+600000 sfens, 667 sfens/second, at Fri Apr  3 18:26:41 2026
+........................................
+800000 sfens, 639 sfens/second, at Fri Apr  3 18:31:54 2026
+........................................
+1000000 sfens, 600 sfens/second, at Fri Apr  3 18:37:27 2026
+........................................
+1200000 sfens, 718 sfens/second, at Fri Apr  3 18:42:05 2026
+........................................
+1400000 sfens, 716 sfens/second, at Fri Apr  3 18:46:44 2026
+........................................
+1600000 sfens, 687 sfens/second, at Fri Apr  3 18:51:35 2026
+........................................
+1800000 sfens, 676 sfens/second, at Fri Apr  3 18:56:31 2026
+........................................
+2000000 sfens, 697 sfens/second, at Fri Apr  3 19:01:17 2026
+........................................
+2200000 sfens, 670 sfens/second, at Fri Apr  3 19:06:16 2026
+........................................
+2400000 sfens, 696 sfens/second, at Fri Apr  3 19:11:03 2026
+........................................
+2600000 sfens, 701 sfens/second, at Fri Apr  3 19:15:48 2026
+........................................
+2800000 sfens, 688 sfens/second, at Fri Apr  3 19:20:39 2026
+........................................
+3000000 sfens, 715 sfens/second, at Fri Apr  3 19:25:18 2026
+........................................
+3200000 sfens, 692 sfens/second, at Fri Apr  3 19:30:07 2026
+........................................
+3400000 sfens, 696 sfens/second, at Fri Apr  3 19:34:54 2026
+........................................
+3600000 sfens, 657 sfens/second, at Fri Apr  3 19:39:58 2026
+........................................
+3800000 sfens, 704 sfens/second, at Fri Apr  3 19:44:42 2026
+........................................
+4000000 sfens, 684 sfens/second, at Fri Apr  3 19:49:34 2026
+........................................
+4200000 sfens, 699 sfens/second, at Fri Apr  3 19:54:20 2026
+........................................
+4400000 sfens, 704 sfens/second, at Fri Apr  3 19:59:04 2026
+........................................
+4600000 sfens, 710 sfens/second, at Fri Apr  3 20:03:46 2026
+........................................
+4800000 sfens, 663 sfens/second, at Fri Apr  3 20:08:47 2026
+........................................
+5000000 sfens, 670 sfens/second, at Fri Apr  3 20:13:45 2026
+........................................
+5200000 sfens, 645 sfens/second, at Fri Apr  3 20:18:55 2026
+........................................
+5400000 sfens, 639 sfens/second, at Fri Apr  3 20:24:08 2026
