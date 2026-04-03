@@ -202,6 +202,40 @@ Perft 5 = 4865609 (canonical). Zero build warnings.
 
 ---
 
+## Technical Changes (Phase 3C)
+
+### H. Sharpness signal refinement (`src/tigerfish.h`)
+
+`tiger_sharpness()` extended from 2 components to 4, plus a piece-presence
+gate on components 2–4:
+
+| Component | Signal | Max pts | Gate |
+|---|---|---|---|
+| 1 | Our pieces attacking enemy king ring | 192 (4×48) | none |
+| 2 | Open/semi-open files near enemy king | 60 (6×10) | hasMajorOrMinor |
+| 3 | Shelter weakness: enemy pawn missing from immediate rank in front of king | 48 (3×16) | hasMajorOrMinor |
+| 4 | Pawn storm: our advanced pawns on 3 files near enemy king | 32 (4×8) | hasMajorOrMinor |
+
+**`hasMajorOrMinor`** gate prevents components 2–4 from firing in pure pawn
+endgames (where "advancing toward the king" means promotion play, not attack).
+
+**Verified calibration** (depth 15, TigerAggression=TigerRisk=100):
+
+| Position | Est. sharpness | Tiger OFF | Tiger ON | Ratio |
+|---|---|---|---|---|
+| Dragon move 9 (g7-bishop shelter hole) | ≈16 | 124 706 | 108 591 | ~0.87× ¹ |
+| King+pawn endgame | 0 | 45 366 | 45 366 | **1.00×** |
+| 3 attackers on king ring | ≈144 | 33 032 | 53 101 | 1.61× |
+
+¹ Dragon Tiger ON < OFF: the slight sharpness bonus slightly shifts the eval
+and leads to a different (narrower) search tree — different branches, not fewer
+good moves.  The key result is **Endgame is now exactly 1.00×** (Tiger
+completely inactive) while Dragon is non-zero.
+
+Perft 5 = 4865609. Zero build warnings.
+
+---
+
 ## Suggested Next Steps (Phase 4)
 
 1. **Targeted futility loosening**: in very sharp positions (`sharpness > 160`),

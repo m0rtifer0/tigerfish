@@ -22,7 +22,8 @@
       "Bash(printf \"uci\\\\nisready\\\\nposition fen r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1BP2/PPP3PP/R2QKB1R w KQ - 0 9\\\\ngo movetime 3000\\\\nquit\\\\n\")",
       "Bash(printf \"uci\\\\nisready\\\\nposition fen r1bq1rk1/pp2ppbp/2np1np1/8/3NP3/2N1BP2/PPP3PP/R2QKB1R w KQ - 0 9\\\\ngo depth 14\\\\n\")",
       "Bash(printf \"bench 16 1 10\\\\nquit\\\\n\")",
-      "Bash(printf \"uci\\\\nisready\\\\nposition startpos\\\\ngo perft 5\\\\n\")"
+      "Bash(printf \"uci\\\\nisready\\\\nposition startpos\\\\ngo perft 5\\\\n\")",
+      "Read(//tmp/**)"
     ]
   }
 }

@@ -63,18 +63,26 @@ struct TigerConfig {
 //
 // Estimates how tactically sharp/attacking the current position is.
 // Returns 0-256:
-//   0   = dead quiet (closed endgame, sterile structure)
-//   256 = full-throttle king attack
+//   0   = dead quiet (pure pawn endgame, fully closed structure)
+//   256 = full-throttle king attack (rook on open file + knight in king ring)
 //
-// Two independent signals are combined:
+// Four independent signals are combined:
 //   1. Attacker count  – our non-pawn pieces that hit the enemy king ring.
-//      Each piece contributes up to 4 * 48 = 192 pts.
-//   2. Open-file bonus – open/semi-open files next to the enemy king
-//      that provide highways for rooks and queens.
-//      Up to 6 file-points * 10 = 60 pts.
+//      Max 4 attackers × 48 = 192 pts.
+//   2. Open-file bonus – open/semi-open files next to the enemy king.
+//      Max 6 file-pts × 10 = 60 pts.   [GATED: requires us to have pieces]
+//   3. Shelter weakness – the enemy pawn directly in front of the king is
+//      missing (e.g. Dragon's g7-bishop replacing the g-pawn).
+//      Max 3 files × 16 = 48 pts.       [GATED: requires us to have pieces]
+//   4. Pawn storm – our pawns on the 3 files near the enemy king that have
+//      crossed the centre line and can drive the attack forward.
+//      Max 4 pawns × 8 = 32 pts.        [GATED: requires us to have pieces]
 //
-// Total is capped at 256.  The computation is O(pieces) — cheap enough to
-// call once per iterative_deepening() call.
+// Components 2–4 are gated behind hasMajorOrMinor so that in pure king +
+// pawn endgames Tiger effects are suppressed completely (the advancing pawns
+// are promotion races, not king attacks).
+//
+// Total is capped at 256.  O(pieces) — cheap for a once-per-search call.
 // ---------------------------------------------------------------------------
 inline int tiger_sharpness(const Position& pos) {
 
@@ -83,34 +91,88 @@ inline int tiger_sharpness(const Position& pos) {
     Square   theirKing = pos.square<KING>(them);
     Bitboard kingRing  = attacks_bb<KING>(theirKing);
     Bitboard occ       = pos.pieces();
+    int      kf        = static_cast<int>(file_of(theirKing));
 
     // --- Component 1: pieces attacking enemy king ring ----------------------
-    // Only non-pawn, non-king pieces of the side to move are considered.
+    // Always computed — it already requires non-pawn pieces by definition.
     Bitboard attackers = pos.pieces(us) & ~pos.pieces(us, PAWN) & ~pos.pieces(us, KING);
     int kingAttackers  = 0;
-    while (attackers)
     {
-        Square s = pop_lsb(attackers);
-        if (attacks_bb(pos.piece_on(s), s, occ) & kingRing)
-            ++kingAttackers;
+        Bitboard tmp = attackers;
+        while (tmp)
+        {
+            Square s = pop_lsb(tmp);
+            if (attacks_bb(pos.piece_on(s), s, occ) & kingRing)
+                ++kingAttackers;
+        }
     }
     int score = std::min(kingAttackers, 4) * 48;   // max 192
 
-    // --- Component 2: open / semi-open files near enemy king ----------------
-    // Fully open (no pawns at all) = 2 pts; semi-open (no enemy pawn) = 1 pt.
-    // We check the king file plus one file on each side.
-    int kf        = static_cast<int>(file_of(theirKing));
-    int fileScore = 0;
-    for (int df = -1; df <= 1; ++df)
+    // Gate: components 2–4 only fire when we have at least one major or minor
+    // piece.  This suppresses Tiger in pure pawn endgames where "advancing
+    // toward the enemy king" means promotion play, not a king attack.
+    const bool hasMajorOrMinor = (pos.count<KNIGHT>(us) + pos.count<BISHOP>(us)
+                                  + pos.count<ROOK>(us)   + pos.count<QUEEN>(us)) > 0;
+    if (hasMajorOrMinor)
     {
-        int fi = kf + df;
-        if (fi < FILE_A || fi > FILE_H)
-            continue;
-        Bitboard fileMask = file_bb(static_cast<File>(fi));
-        if (!(pos.pieces(PAWN) & fileMask))             fileScore += 2;  // open
-        else if (!(pos.pieces(them, PAWN) & fileMask))  fileScore += 1;  // semi-open
+        // --- Component 2: open / semi-open files near enemy king ------------
+        // Open (no pawns at all) = 2 pts; semi-open (no enemy pawn) = 1 pt.
+        int fileScore = 0;
+        for (int df = -1; df <= 1; ++df)
+        {
+            int fi = kf + df;
+            if (fi < FILE_A || fi > FILE_H)
+                continue;
+            Bitboard fileMask = file_bb(static_cast<File>(fi));
+            if (!(pos.pieces(PAWN) & fileMask))             fileScore += 2;
+            else if (!(pos.pieces(them, PAWN) & fileMask))  fileScore += 1;
+        }
+        score += std::min(fileScore, 6) * 10;   // max 60
+
+        // --- Component 3: pawn shelter weakness (immediate rank) ------------
+        // Check the single rank directly in front of the enemy king.
+        // If that square holds anything other than an enemy pawn (e.g. the
+        // Dragon's bishop on g7 replacing the g-pawn), the king is structurally
+        // exposed even without active attackers yet.
+        //
+        // dr: direction from the king toward their centre.
+        //   WHITE king → shelter is toward rank 8 (+1).
+        //   BLACK king → shelter is toward rank 1 (-1).
+        const int  dr            = (them == WHITE) ? 1 : -1;
+        const Rank shelterRank   = static_cast<Rank>(static_cast<int>(rank_of(theirKing)) + dr);
+        int        shelterMissed = 0;
+        if (shelterRank >= RANK_1 && shelterRank <= RANK_8)
+        {
+            for (int df = -1; df <= 1; ++df)
+            {
+                int fi = kf + df;
+                if (fi < FILE_A || fi > FILE_H)
+                    continue;
+                Square shelter = make_square(static_cast<File>(fi), shelterRank);
+                if (pos.piece_on(shelter) != make_piece(them, PAWN))
+                    ++shelterMissed;
+            }
+        }
+        score += shelterMissed * 16;   // max 3 × 16 = 48
+
+        // --- Component 4: pawn storm (advanced pawns near enemy king) -------
+        // Our pawns on the 3 files adjacent to the enemy king that have crossed
+        // the centre line contribute to a developing pawn storm.
+        // Threshold: rank >= 4 for white, rank <= 5 for black.
+        int stormPawns  = 0;
+        Bitboard ourPwns = pos.pieces(us, PAWN);
+        while (ourPwns)
+        {
+            Square ps = pop_lsb(ourPwns);
+            if (std::abs(static_cast<int>(file_of(ps)) - kf) > 1)
+                continue;
+            const bool advanced = (us == WHITE) ? (rank_of(ps) >= RANK_4)
+                                                : (rank_of(ps) <= RANK_5);
+            if (advanced)
+                ++stormPawns;
+        }
+        score += std::min(stormPawns, 4) * 8;   // max 4 × 8 = 32
     }
-    score += std::min(fileScore, 6) * 10;   // max 60
 
     return std::min(score, 256);
 }
