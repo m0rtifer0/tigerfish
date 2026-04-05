@@ -79,7 +79,8 @@
       "Bash(rm -rf ~/.cache/pip/)",
       "Bash(rmdir /home/cengizsezer/Workspace/torch_wheels/)",
       "Bash(dnf --version)",
-      "Read(//usr/lib/**)"
+      "Read(//usr/lib/**)",
+      "Bash(ls ~/Workspace/tigerfish/training/*.py)"
     ]
   }
 }
