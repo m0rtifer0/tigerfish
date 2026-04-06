@@ -3,7 +3,7 @@
 
 #include "packed_sfen.h"
 
-#include "extra/nnue_data_binpack_format.h"
+#include "../extra/nnue_data_binpack_format.h"
 
 #include <optional>
 #include <fstream>

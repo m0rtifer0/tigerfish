@@ -2,15 +2,14 @@
 """
 Tigerfish Self-Play Training Data Generator
 
-Uses sf-tools (vondele/Stockfish tools branch) to generate .binpack training
-data via self-play. The engine plays games against itself and records positions
-with evaluations.
+Uses Tigerfish's built-in generate_training_data command to generate .binpack
+training data via self-play. All Tiger search modifications (aggression,
+sharpness, anti-draw) are active during self-play.
 
 Usage:
     python3 training/selfplay.py                        # defaults: 10M positions
     python3 training/selfplay.py --count 50000000       # 50M positions
     python3 training/selfplay.py --depth 12             # deeper search
-    python3 training/selfplay.py --engine src/tigerfish  # use Tiger engine
     python3 training/selfplay.py --threads 8            # limit threads
 
 Output: training/data/tiger_train_NNN.binpack
@@ -25,7 +24,7 @@ import time
 
 TIGERFISH_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 DATA_DIR      = os.path.join(TIGERFISH_DIR, "training", "data")
-SF_TOOLS      = os.path.join(os.path.expanduser("~"), "Workspace", "sf-tools", "src", "stockfish")
+TIGERFISH_BIN = os.path.join(TIGERFISH_DIR, "src", "tigerfish")
 
 
 def next_binpack_name():
@@ -45,8 +44,8 @@ def next_binpack_name():
 
 def main():
     parser = argparse.ArgumentParser(description="Tigerfish Self-Play Data Generator")
-    parser.add_argument("--engine", type=str, default=SF_TOOLS,
-                        help=f"Engine binary (default: {SF_TOOLS})")
+    parser.add_argument("--engine", type=str, default=TIGERFISH_BIN,
+                        help=f"Engine binary (default: {TIGERFISH_BIN})")
     parser.add_argument("--count", type=int, default=10_000_000,
                         help="Number of positions to generate (default: 10M)")
     parser.add_argument("--depth", type=int, default=9,
@@ -67,7 +66,7 @@ def main():
 
     if not os.path.isfile(args.engine):
         print(f"ERROR: Engine not found: {args.engine}")
-        print(f"  Build sf-tools: cd ~/Workspace/sf-tools/src && make -j$(nproc) build ARCH=native")
+        print(f"  Build Tigerfish: cd ~/Workspace/tigerfish/src && make -j$(nproc) ARCH=x86-64-avx2 COMP=gcc all")
         sys.exit(1)
 
     output = args.output or next_binpack_name()
@@ -97,7 +96,6 @@ def main():
             f"random_move_count {args.random_move_count} "
             f"random_multi_pv {args.random_multi_pv} "
             f"random_multi_pv_diff 50 "
-            f"random_multi_pv_depth 4 "
             f"eval_limit {args.eval_limit} "
             f"output_file_name {output}"
         ),

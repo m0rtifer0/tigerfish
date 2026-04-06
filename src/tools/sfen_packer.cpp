@@ -2,8 +2,8 @@
 
 #include "packed_sfen.h"
 
-#include "misc.h"
-#include "position.h"
+#include "../misc.h"
+#include "../position.h"
 
 #include <sstream>
 #include <fstream>
@@ -96,11 +96,11 @@ namespace Stockfish::Tools {
             stream.write_n_bit(pos.square<KING>(c), 6);
 
         // Board pieces (excluding kings)
-        for (Rank r = RANK_8; r >= RANK_1; --r)
+        for (int ri = RANK_8; ri >= RANK_1; --ri)
         {
             for (File f = FILE_A; f <= FILE_H; ++f)
             {
-                Piece pc = pos.piece_on(make_square(f, r));
+                Piece pc = pos.piece_on(make_square(f, Rank(ri)));
                 if (type_of(pc) == KING)
                     continue;
                 write_board_piece_to_stream(pc);

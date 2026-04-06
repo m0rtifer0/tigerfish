@@ -80,7 +80,25 @@
       "Bash(rmdir /home/cengizsezer/Workspace/torch_wheels/)",
       "Bash(dnf --version)",
       "Read(//usr/lib/**)",
-      "Bash(ls ~/Workspace/tigerfish/training/*.py)"
+      "Bash(ls ~/Workspace/tigerfish/training/*.py)",
+      "Bash(ls ~/Workspace/tigerfish/src/nn-*.nnue)",
+      "Bash(make ARCH=x86-64-avx2 COMP=gcc all)",
+      "Bash(kill 12441)",
+      "Bash(ls -la /tmp/test_tiger*)",
+      "Bash(timeout 30 bash -c 'echo -e \"position startpos\\\\ngo depth 6\\\\nquit\" | ./tigerfish 2>&1')",
+      "Bash(timeout 60 bash -c 'echo \"generate_training_data depth 6 count 100 output_file_name /tmp/test_tiger2\" | ./tigerfish 2>&1')",
+      "Bash(timeout 90 bash -c 'echo \"generate_training_data depth 6 count 100 output_file_name /tmp/test_tiger3\" | ./tigerfish 2>&1')",
+      "Bash(timeout 90 bash -c 'echo \"generate_training_data depth 6 count 100 output_file_name /tmp/test_tiger3\" | ./tigerfish 2>&1 | grep -E \"DEBUG|sfens\"')",
+      "Bash(timeout 90 bash -c 'echo \"generate_training_data depth 6 count 100 output_file_name /tmp/test_tiger3\" | stdbuf -oL ./tigerfish 2>&1')",
+      "Bash(timeout 300 bash -c 'echo \"generate_training_data depth 6 count 100 output_file_name /tmp/test_tiger4\" | stdbuf -oL ./tigerfish 2>&1')",
+      "Bash(timeout 120 bash -c 'echo \"generate_training_data depth 6 count 100 output_file_name /tmp/test_tiger5\" | ./tigerfish > /tmp/tiger_out.txt 2>&1')",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(timeout 120 bash -c 'echo \"generate_training_data depth 6 count 100 output_file_name /tmp/test_tiger6\" | ./tigerfish > /tmp/tiger_out2.txt 2>&1')",
+      "Bash(timeout 60 bash -c 'echo \"generate_training_data depth 6 count 100 output_file_name /tmp/test_tiger7\" | ./tigerfish > /tmp/tiger_out3.txt 2>&1')",
+      "Bash(timeout 30 bash -c 'echo \"generate_training_data depth 6 count 100 output_file_name /tmp/test_tiger8\" | ./tigerfish > /tmp/tiger_out4.txt 2>&1')",
+      "Bash(timeout 60 bash -c 'echo \"generate_training_data depth 6 count 100 output_file_name /tmp/test_tiger10\" | ./tigerfish > /tmp/tiger_out6.txt 2>&1')",
+      "Bash(timeout 120 bash -c 'echo \"generate_training_data depth 9 count 10000 output_file_name /tmp/tiger_real_test\" | ./tigerfish 2>&1')",
+      "Bash(python3 training/selfplay.py --count 5000 --depth 6)"
     ]
   }
 }

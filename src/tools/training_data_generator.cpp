@@ -16,15 +16,15 @@
 #include "packed_sfen.h"
 #include "sfen_stream.h"
 
-#include "engine.h"
-#include "misc.h"
-#include "movegen.h"
-#include "position.h"
-#include "search.h"
-#include "thread.h"
-#include "tt.h"
-#include "types.h"
-#include "uci.h"
+#include "../engine.h"
+#include "../misc.h"
+#include "../movegen.h"
+#include "../position.h"
+#include "../search.h"
+#include "../thread.h"
+#include "../tt.h"
+#include "../types.h"
+#include "../uci.h"
 
 #include <atomic>
 #include <chrono>
@@ -197,6 +197,7 @@ void generate_training_data(Engine& engine, std::istringstream& is)
     engine.set_on_update_full([](const Search::InfoFull&) {});
     engine.set_on_update_no_moves([](const Search::InfoShort&) {});
     engine.set_on_iter([](const Search::InfoIteration&) {});
+    engine.set_on_verify_networks([](string_view) {});
 
     PRNG_Tool rng;
     uint64_t total_sfens = 0;
@@ -228,20 +229,24 @@ void generate_training_data(Engine& engine, std::istringstream& is)
         for (int ply = 0; ply < params.write_maxply + MAX_PLY && !game_ended; ++ply)
         {
             // Set position with all moves so far
-            engine.set_position(StartFEN, move_list);
+            auto set_err = engine.set_position(StartFEN, move_list);
+            if (set_err.has_value()) {
+                game_ended = true;
+                break;
+            }
 
             // Fixed-depth search
             Search::LimitsType limits;
             limits.depth = params.search_depth;
             limits.startTime = now();
+
             engine.go(limits);
             engine.wait_for_search_finished();
 
             // Read search result
             Thread* bestThread = engine.get_best_thread_after_search();
             if (!bestThread || bestThread->worker->rootMoves.empty()) {
-                // No legal moves — check if mate or stalemate
-                game_result = 0;  // stalemate by default
+                game_result = 0;
                 result_color = (ply % 2 == 0) ? WHITE : BLACK;
                 game_ended = true;
                 break;
@@ -250,24 +255,21 @@ void generate_training_data(Engine& engine, std::istringstream& is)
             Value score = bestThread->worker->rootMoves[0].score;
             Move best_move = bestThread->worker->rootMoves[0].pv[0];
 
-            if (!is_ok(best_move)) {
+            if (!best_move.is_ok()) {
                 game_ended = true;
                 break;
             }
 
-            // Check for game end
             auto result = check_game_end(
                 move_scores, score, params, ply, resign_counter, should_resign);
 
             if (result.has_value()) {
                 game_result = result.value();
-                // result is from POV of side to move at this ply
                 result_color = (ply % 2 == 0) ? WHITE : BLACK;
                 game_ended = true;
                 break;
             }
 
-            // Record score for draw adjudication
             move_scores.push_back(score);
 
             // Pack this position for training output
@@ -277,7 +279,7 @@ void generate_training_data(Engine& engine, std::istringstream& is)
                 psv.score = (int16_t)score;
                 psv.move = (uint16_t)best_move.raw();
                 psv.gamePly = (uint16_t)ply;
-                psv.game_result = 0;  // filled after game ends
+                psv.game_result = 0;
                 psv.padding = 0;
                 packed_sfens.push_back(psv);
             }
@@ -285,13 +287,11 @@ void generate_training_data(Engine& engine, std::istringstream& is)
             // Choose next move (random or best)
             Move next_move = best_move;
             if (ply < (int)random_flags.size() && random_flags[ply]) {
-                // Use bestThread's rootPos for legal move generation
                 MoveList<LEGAL> legal(bestThread->worker->rootPos);
                 if (legal.size() > 0)
-                    next_move = legal[rng.rand(legal.size())];
+                    next_move = *(legal.begin() + rng.rand(legal.size()));
             }
 
-            // Add move to the game move list (UCI string format)
             move_list.push_back(
                 UCIEngine::move(next_move, false));
         }
