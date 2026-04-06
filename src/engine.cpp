@@ -38,6 +38,7 @@
 #include "perft.h"
 #include "position.h"
 #include "search.h"
+#include "tools/training_data_generator.h"
 #include "shm.h"
 #include "syzygy/tbprobe.h"
 #include "types.h"
@@ -367,6 +368,14 @@ OptionsMap&       Engine::get_options() { return options; }
 std::string Engine::fen() const { return pos.fen(); }
 
 void Engine::flip() { pos.flip(); }
+
+void Engine::generate_training_data(std::istringstream& is) {
+    Tools::generate_training_data(*this, is);
+}
+
+Thread* Engine::get_best_thread_after_search() const {
+    return threads.get_best_thread();
+}
 
 std::string Engine::visualize() const {
     std::stringstream ss;

@@ -102,6 +102,12 @@ class Engine {
 
     int get_hashfull(int maxAge = 0) const;
 
+    // Training data generation (self-play)
+    void generate_training_data(std::istringstream& is);
+
+    // Access best thread after a completed search (for tools)
+    Thread* get_best_thread_after_search() const;
+
     std::string                            fen() const;
     void                                   flip();
     std::string                            visualize() const;

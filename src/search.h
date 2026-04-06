@@ -338,9 +338,13 @@ class Worker {
 
     Value optimism[COLOR_NB];
 
+   public:
+    // Public for tools (training data generator) access
     Position  rootPos;
-    StateInfo rootState;
     RootMoves rootMoves;
+
+   private:
+    StateInfo rootState;
     Depth     rootDepth, completedDepth;
     Value     rootDelta;
 

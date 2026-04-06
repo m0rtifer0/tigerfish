@@ -163,6 +163,8 @@ void UCIEngine::loop() {
 
             engine.save_network(files);
         }
+        else if (token == "generate_training_data")
+            engine.generate_training_data(is);
         else if (token == "--help" || token == "help" || token == "--license" || token == "license")
             sync_cout
               << "\nTigerfish is an aggressive-style UCI chess engine derived from Stockfish."
