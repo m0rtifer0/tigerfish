@@ -1,6 +1,7 @@
-# Local-only directories
+# Local-only directories and files
 /training/
 /.claude/
+/CHANGELOG.md
 
 # Build artifacts
 *.o

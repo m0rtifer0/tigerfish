@@ -196,7 +196,6 @@ tigerfish/
 │   └── Makefile                  # Build system
 ├── README.md
 ├── DESIGN.md                     # Deep-dive design notes
-├── CHANGELOG.md                  # Release history
 ├── CONTRIBUTING.md               # Contribution guide
 ├── AUTHORS                       # List of contributors
 └── Copying.txt                   # GPLv3 license text
