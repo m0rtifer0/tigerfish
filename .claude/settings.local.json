@@ -99,7 +99,11 @@
       "Bash(timeout 60 bash -c 'echo \"generate_training_data depth 6 count 100 output_file_name /tmp/test_tiger10\" | ./tigerfish > /tmp/tiger_out6.txt 2>&1')",
       "Bash(timeout 120 bash -c 'echo \"generate_training_data depth 9 count 10000 output_file_name /tmp/tiger_real_test\" | ./tigerfish 2>&1')",
       "Bash(python3 training/selfplay.py --count 5000 --depth 6)",
-      "Bash(ls -la ~/Workspace/tigerfish/src/nn-*.nnue)"
+      "Bash(ls -la ~/Workspace/tigerfish/src/nn-*.nnue)",
+      "Bash(python3)",
+      "Bash(curl -s https://www.gnu.org/licenses/gpl-3.0.txt -o /tmp/gpl3.txt)",
+      "Bash(timeout 30 bash -c 'echo \"generate_training_data depth 6 count 200 output_file_name /tmp/tiger_final_test\" | ./tigerfish 2>&1')",
+      "Bash(timeout 30 bash -c 'echo \"generate_training_data depth 6 count 200 output_file_name /tmp/tiger_final2\" | ./tigerfish 2>&1')"
     ]
   }
 }

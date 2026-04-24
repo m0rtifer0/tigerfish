@@ -1,13 +1,13 @@
 /*
-  Stockfish, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2026 The Stockfish developers (see AUTHORS file)
+  Tigerfish, an aggressive-style UCI chess engine.
+  Copyright (C) 2026 The Tigerfish developers
 
-  Stockfish is free software: you can redistribute it and/or modify
+  Tigerfish is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Stockfish is distributed in the hope that it will be useful,
+  Tigerfish is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
@@ -32,7 +32,7 @@
 #include "../../types.h"
 #include "../nnue_common.h"
 
-namespace Stockfish::Eval::NNUE::Features {
+namespace Tigerfish::Eval::NNUE::Features {
 
 struct HelperOffsets {
     int cumulativePieceOffset, cumulativeOffset;
@@ -340,4 +340,4 @@ bool FullThreats::requires_refresh(const DiffType& diff, Color perspective) {
     return perspective == diff.us && (int8_t(diff.ksq) & 0b100) != (int8_t(diff.prevKsq) & 0b100);
 }
 
-}  // namespace Stockfish::Eval::NNUE::Features
+}  // namespace Tigerfish::Eval::NNUE::Features

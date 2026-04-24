@@ -1,13 +1,13 @@
 /*
-  Stockfish, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2026 The Stockfish developers (see AUTHORS file)
+  Tigerfish, an aggressive-style UCI chess engine.
+  Copyright (C) 2026 The Tigerfish developers
 
-  Stockfish is free software: you can redistribute it and/or modify
+  Tigerfish is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Stockfish is distributed in the hope that it will be useful,
+  Tigerfish is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
@@ -44,7 +44,7 @@
 #define stringify2(x) #x
 #define stringify(x) stringify2(x)
 
-namespace Stockfish {
+namespace Tigerfish {
 
 std::string engine_version_info();
 std::string engine_info(bool to_uci = false);
@@ -526,12 +526,12 @@ void move_to_front(std::vector<T>& vec, Predicate pred) {
     #define sf_unreachable()
 #endif
 
-}  // namespace Stockfish
+}  // namespace Tigerfish
 
 template<std::size_t N>
-struct std::hash<Stockfish::FixedString<N>> {
-    std::size_t operator()(const Stockfish::FixedString<N>& fstr) const noexcept {
-        return Stockfish::hash_bytes(fstr.data(), fstr.size());
+struct std::hash<Tigerfish::FixedString<N>> {
+    std::size_t operator()(const Tigerfish::FixedString<N>& fstr) const noexcept {
+        return Tigerfish::hash_bytes(fstr.data(), fstr.size());
     }
 };
 

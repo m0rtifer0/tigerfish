@@ -1,12 +1,12 @@
-# Stockfish, a UCI chess playing engine derived from Glaurung 2.1
-# Copyright (C) 2004-2026 The Stockfish developers (see AUTHORS file)
+# Tigerfish, an aggressive-style UCI chess engine.
+# Copyright (C) 2026 The Tigerfish developers
 #
-# Stockfish is free software: you can redistribute it and/or modify
+# Tigerfish is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Stockfish is distributed in the hope that it will be useful,
+# Tigerfish is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
@@ -928,7 +928,7 @@ endif
 
 help:
 	@echo "" && \
-	echo "To compile stockfish, type: " && \
+	echo "To compile tigerfish, type: " && \
 	echo "" && \
 	echo "make -j target [ARCH=arch] [COMP=compiler] [COMPCXX=cxx]" && \
 	echo "" && \
@@ -1045,16 +1045,16 @@ clean: objclean profileclean
 
 # clean binaries and objects
 objclean:
-	@rm -f tigerfish tigerfish.exe stockfish stockfish.exe *.o ./syzygy/*.o ./nnue/*.o ./nnue/features/*.o $(BUILD_SHA_FILE) $(BUILD_DATE_FILE)
+	@rm -f tigerfish tigerfish.exe *.o ./syzygy/*.o ./nnue/*.o ./nnue/features/*.o $(BUILD_SHA_FILE) $(BUILD_DATE_FILE)
 
 # clean auxiliary profiling files
 profileclean:
 	@rm -rf profdir
 	@rm -f bench.txt *.gcda *.gcno ./syzygy/*.gcda ./nnue/*.gcda ./nnue/features/*.gcda *.s PGOBENCH.out
-	@rm -f tigerfish.profdata stockfish.profdata *.profraw
-	@rm -f tigerfish.*args* stockfish.*args*
-	@rm -f tigerfish.*lt* stockfish.*lt*
-	@rm -f tigerfish.res stockfish.res
+	@rm -f tigerfish.profdata *.profraw
+	@rm -f tigerfish.*args*
+	@rm -f tigerfish.*lt*
+	@rm -f tigerfish.res
 	@rm -f ./-lstdc++.res
 
 # evaluation network (nnue)
@@ -1162,9 +1162,9 @@ clang-profile-make:
 	all
 
 clang-profile-use:
-	$(XCRUN) $(LLVM_PROFDATA) merge -output=stockfish.profdata *.profraw
+	$(XCRUN) $(LLVM_PROFDATA) merge -output=tigerfish.profdata *.profraw
 	$(MAKE) ARCH=$(ARCH) COMP=$(COMP) \
-	EXTRACXXFLAGS='-fprofile-use=stockfish.profdata' \
+	EXTRACXXFLAGS='-fprofile-use=tigerfish.profdata' \
 	EXTRALDFLAGS='-fprofile-use ' \
 	all
 
@@ -1190,9 +1190,9 @@ icx-profile-make:
 	all
 
 icx-profile-use:
-	$(XCRUN) $(LLVM_PROFDATA) merge -output=stockfish.profdata *.profraw
+	$(XCRUN) $(LLVM_PROFDATA) merge -output=tigerfish.profdata *.profraw
 	$(MAKE) ARCH=$(ARCH) COMP=$(COMP) \
-	EXTRACXXFLAGS='-fprofile-instr-use=stockfish.profdata' \
+	EXTRACXXFLAGS='-fprofile-instr-use=tigerfish.profdata' \
 	EXTRALDFLAGS='-fprofile-use ' \
 	all
 

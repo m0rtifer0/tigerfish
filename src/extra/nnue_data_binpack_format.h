@@ -1,13 +1,13 @@
 /*
-  Stockfish, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2021 The Stockfish developers (see AUTHORS file)
+  Tigerfish, an aggressive-style UCI chess engine.
+  Copyright (C) 2026 The Tigerfish developers
 
-  Stockfish is free software: you can redistribute it and/or modify
+  Tigerfish is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Stockfish is distributed in the hope that it will be useful,
+  Tigerfish is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
@@ -6271,18 +6271,18 @@ namespace binpack
 
     using namespace std::literals;
 
-    namespace nodchip
+    namespace tigerfish_binpack
     {
-        // This namespace contains modified code from https://github.com/nodchip/Stockfish
+        // This namespace contains packed-sfen format code.
         // which is released under GPL v3 license https://www.gnu.org/licenses/gpl-3.0.html
 
         using namespace std;
 
-        struct StockfishMove
+        struct TigerfishMove
         {
-            [[nodiscard]] static StockfishMove fromMove(chess::Move move)
+            [[nodiscard]] static TigerfishMove fromMove(chess::Move move)
             {
-                StockfishMove sfm;
+                TigerfishMove sfm;
 
                 sfm.m_raw = 0;
 
@@ -6353,7 +6353,7 @@ namespace binpack
         private:
             std::uint16_t m_raw;
         };
-        static_assert(sizeof(StockfishMove) == sizeof(std::uint16_t));
+        static_assert(sizeof(TigerfishMove) == sizeof(std::uint16_t));
 
         struct PackedSfen
         {
@@ -6370,7 +6370,7 @@ namespace binpack
 
             // PV first move
             // Used when finding the match rate with the teacher
-            StockfishMove move;
+            TigerfishMove move;
 
             // Trouble of the phase from the initial phase.
             uint16_t gamePly;
@@ -6837,11 +6837,11 @@ namespace binpack
         }
     };
 
-    [[nodiscard]] inline TrainingDataEntry packedSfenValueToTrainingDataEntry(const nodchip::PackedSfenValue& psv)
+    [[nodiscard]] inline TrainingDataEntry packedSfenValueToTrainingDataEntry(const tigerfish_binpack::PackedSfenValue& psv)
     {
         TrainingDataEntry ret;
 
-        ret.pos = nodchip::pos_from_packed_sfen(psv.sfen);
+        ret.pos = tigerfish_binpack::pos_from_packed_sfen(psv.sfen);
         ret.move = psv.move.toMove();
         ret.score = psv.score;
         ret.ply = psv.gamePly;
@@ -6850,16 +6850,16 @@ namespace binpack
         return ret;
     }
 
-    [[nodiscard]] inline nodchip::PackedSfenValue trainingDataEntryToPackedSfenValue(const TrainingDataEntry& plain)
+    [[nodiscard]] inline tigerfish_binpack::PackedSfenValue trainingDataEntryToPackedSfenValue(const TrainingDataEntry& plain)
     {
-        nodchip::PackedSfenValue ret;
+        tigerfish_binpack::PackedSfenValue ret;
 
-        nodchip::SfenPacker sp;
+        tigerfish_binpack::SfenPacker sp;
         sp.data = reinterpret_cast<uint8_t*>(&ret.sfen);
         sp.pack(plain.pos);
 
         ret.score = plain.score;
-        ret.move = nodchip::StockfishMove::fromMove(plain.move);
+        ret.move = tigerfish_binpack::TigerfishMove::fromMove(plain.move);
         ret.gamePly = plain.ply;
         ret.game_result = plain.result;
         ret.padding = 0xff; // for consistency with the .bin format.
@@ -7642,7 +7642,7 @@ namespace binpack
         const auto base = inputFile.tellg();
         std::size_t numProcessedPositions = 0;
 
-        nodchip::PackedSfenValue psv;
+        tigerfish_binpack::PackedSfenValue psv;
         for(;;)
         {
             inputFile.read(reinterpret_cast<char*>(&psv), sizeof(psv));
@@ -7733,7 +7733,7 @@ namespace binpack
         std::string buffer;
         buffer.reserve(bufferSize * 2);
 
-        nodchip::PackedSfenValue psv;
+        tigerfish_binpack::PackedSfenValue psv;
         for(;;)
         {
             inputFile.read(reinterpret_cast<char*>(&psv), sizeof(psv));
@@ -7925,7 +7925,7 @@ namespace binpack
         std::size_t numProcessedPositions = 0;
         std::size_t numProcessedPositionsBatch = 0;
 
-        nodchip::PackedSfenValue psv;
+        tigerfish_binpack::PackedSfenValue psv;
         for(;;)
         {
             inputFile.read(reinterpret_cast<char*>(&psv), sizeof(psv));

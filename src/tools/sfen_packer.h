@@ -3,11 +3,11 @@
 
 #include "packed_sfen.h"
 
-namespace Stockfish {
+namespace Tigerfish {
 class Position;
 }
 
-namespace Stockfish::Tools {
+namespace Tigerfish::Tools {
 
     // Pack a position into a 32-byte PackedSfen for training data output.
     PackedSfen sfen_pack(Position& pos, bool resetCastlingRights);

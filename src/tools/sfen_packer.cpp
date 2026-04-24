@@ -11,7 +11,7 @@
 
 using namespace std;
 
-namespace Stockfish::Tools {
+namespace Tigerfish::Tools {
 
     // Class that handles bitstream
     struct BitStream

@@ -1,9 +1,19 @@
 /*
-  Tigerfish – a UCI chess engine derived from Stockfish.
-  Tigerfish is free software licensed under the GNU GPLv3 License.
-  Upstream Stockfish copyright: Copyright (C) 2004-2026 The Stockfish developers
-  (see AUTHORS file). Tigerfish modifications are layered on top without altering
-  the upstream licensing or authorship of the original code.
+  Tigerfish, an aggressive-style UCI chess engine.
+  Copyright (C) 2026 The Tigerfish developers
+
+  Tigerfish is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  Tigerfish is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef TIGERFISH_H_INCLUDED
@@ -14,7 +24,7 @@
 #include "bitboard.h"
 #include "position.h"
 
-namespace Stockfish {
+namespace Tigerfish {
 
 // ---------------------------------------------------------------------------
 // TigerConfig
@@ -24,13 +34,13 @@ namespace Stockfish {
 //
 // Design goals:
 //   - No magic numbers scattered across search.cpp / evaluate.cpp.
-//   - All Tiger effects are bounded (safe to set to 0 for pure Stockfish behaviour).
+//   - All Tiger effects are bounded (safe to set to 0 for baseline behaviour).
 //   - A single struct makes it easy to forward-declare and pass as needed.
 // ---------------------------------------------------------------------------
 struct TigerConfig {
 
     // Master on/off switch.  When false every other field is ignored and the
-    // engine behaves identically to vanilla Stockfish.
+    // engine behaves identically to the untuned base engine.
     bool enabled = false;
 
     // 0-100.  Controls how eagerly Tiger pursues initiative and attacking play:
@@ -236,6 +246,6 @@ inline int tiger_move_king_attacks(const Position& pos, Move m) {
     return score;
 }
 
-}  // namespace Stockfish
+}  // namespace Tigerfish
 
 #endif  // #ifndef TIGERFISH_H_INCLUDED

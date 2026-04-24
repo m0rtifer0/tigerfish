@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Export a training checkpoint (.ckpt) to Stockfish .nnue format.
+Export a training checkpoint (.ckpt) to Tigerfish .nnue format.
 
 Usage:
     python3 training/export_nnue.py training/runs/tiger_finetune

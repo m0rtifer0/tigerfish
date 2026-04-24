@@ -17,7 +17,7 @@
 #include <thread>
 #include <atomic>
 
-namespace Stockfish::Tools {
+namespace Tigerfish::Tools {
 
     // Helper class for exporting Sfen
     struct SfenWriter

@@ -10,7 +10,7 @@
 #include <string>
 #include <memory>
 
-namespace Stockfish::Tools {
+namespace Tigerfish::Tools {
 
     enum struct SfenOutputType
     {
@@ -99,7 +99,7 @@ namespace Stockfish::Tools {
 
         std::optional<PackedSfenValue> next() override
         {
-            static_assert(sizeof(binpack::nodchip::PackedSfenValue) == sizeof(PackedSfenValue));
+            static_assert(sizeof(binpack::tigerfish_binpack::PackedSfenValue) == sizeof(PackedSfenValue));
 
             if (!m_stream.hasNext())
             {
@@ -167,13 +167,13 @@ namespace Stockfish::Tools {
 
         void write(const PSVector& sfens) override
         {
-            static_assert(sizeof(binpack::nodchip::PackedSfenValue) == sizeof(PackedSfenValue));
+            static_assert(sizeof(binpack::tigerfish_binpack::PackedSfenValue) == sizeof(PackedSfenValue));
 
             for(auto& sfen : sfens)
             {
                 // The library uses a type that's different but layout-compatibile.
-                binpack::nodchip::PackedSfenValue e;
-                std::memcpy(&e, &sfen, sizeof(binpack::nodchip::PackedSfenValue));
+                binpack::tigerfish_binpack::PackedSfenValue e;
+                std::memcpy(&e, &sfen, sizeof(binpack::tigerfish_binpack::PackedSfenValue));
                 m_stream.addTrainingDataEntry(binpack::packedSfenValueToTrainingDataEntry(e));
             }
         }

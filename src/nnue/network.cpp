@@ -1,13 +1,13 @@
 /*
-  Stockfish, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2026 The Stockfish developers (see AUTHORS file)
+  Tigerfish, an aggressive-style UCI chess engine.
+  Copyright (C) 2026 The Tigerfish developers
 
-  Stockfish is free software: you can redistribute it and/or modify
+  Tigerfish is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Stockfish is distributed in the hope that it will be useful,
+  Tigerfish is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
@@ -69,7 +69,7 @@ struct EmbeddedNNUE {
     const unsigned int   size;
 };
 
-using namespace Stockfish::Eval::NNUE;
+using namespace Tigerfish::Eval::NNUE;
 
 EmbeddedNNUE get_embedded(EmbeddedNNUEType type) {
     if (type == EmbeddedNNUEType::BIG)
@@ -81,7 +81,7 @@ EmbeddedNNUE get_embedded(EmbeddedNNUEType type) {
 }
 
 
-namespace Stockfish::Eval::NNUE {
+namespace Tigerfish::Eval::NNUE {
 
 
 namespace Detail {
@@ -204,9 +204,8 @@ void Network<Arch, Transformer>::verify(std::string                             
             std::string msg2 = "The network file " + evalfilePath + " was not loaded successfully.";
             std::string msg3 = "The UCI option EvalFile might need to specify the full path, "
                                "including the directory name, to the network file.";
-            std::string msg4 = "The default net can be downloaded from: "
-                               "https://tests.stockfishchess.org/api/nn/"
-                             + std::string(evalFile.defaultName);
+            std::string msg4 = "Place the network file " + std::string(evalFile.defaultName)
+                             + " next to the executable or specify its path via EvalFile.";
             std::string msg5 = "The engine will be terminated now.";
 
             std::string msg = "ERROR: " + msg1 + '\n' + "ERROR: " + msg2 + '\n' + "ERROR: " + msg3
@@ -413,4 +412,4 @@ template class Network<NetworkArchitecture<TransformedFeatureDimensionsBig, L2Bi
 template class Network<NetworkArchitecture<TransformedFeatureDimensionsSmall, L2Small, L3Small>,
                        FeatureTransformer<TransformedFeatureDimensionsSmall>>;
 
-}  // namespace Stockfish::Eval::NNUE
+}  // namespace Tigerfish::Eval::NNUE

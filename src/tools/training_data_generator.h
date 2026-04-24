@@ -3,11 +3,11 @@
 
 #include <sstream>
 
-namespace Stockfish {
+namespace Tigerfish {
 class Engine;
 }
 
-namespace Stockfish::Tools {
+namespace Tigerfish::Tools {
 
     // UCI command: generate_training_data depth 9 count 10000000 ...
     void generate_training_data(Engine& engine, std::istringstream& is);

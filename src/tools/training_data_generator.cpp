@@ -2,7 +2,7 @@
   Tigerfish Training Data Generator
   Generates self-play training data in .binpack format for NNUE training.
 
-  Unlike sf-tools which uses a separate Stockfish fork, this generator runs
+  This generator runs
   directly inside Tigerfish, using all Tiger search modifications (aggression,
   sharpness, anti-draw, etc.) during self-play.
 
@@ -41,7 +41,7 @@
 
 using namespace std;
 
-namespace Stockfish::Tools {
+namespace Tigerfish::Tools {
 
 // Simple PRNG (xorshift64)
 struct PRNG_Tool {
@@ -336,4 +336,4 @@ void generate_training_data(Engine& engine, std::istringstream& is)
     }
 }
 
-} // namespace Stockfish::Tools
+} // namespace Tigerfish::Tools

@@ -1,13 +1,13 @@
 /*
-  Stockfish, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2026 The Stockfish developers (see AUTHORS file)
+  Tigerfish, an aggressive-style UCI chess engine.
+  Copyright (C) 2026 The Tigerfish developers
 
-  Stockfish is free software: you can redistribute it and/or modify
+  Tigerfish is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Stockfish is distributed in the hope that it will be useful,
+  Tigerfish is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
@@ -34,7 +34,7 @@
 #include "nnue_common.h"
 #include "simd.h"
 
-namespace Stockfish::Eval::NNUE {
+namespace Tigerfish::Eval::NNUE {
 
 // Returns the inverse of a permutation
 template<std::size_t Len>
@@ -423,13 +423,13 @@ class FeatureTransformer {
                  UseThreats ? ThreatInputDimensions * PSQTBuckets : 0> threatPsqtWeights;
 };
 
-}  // namespace Stockfish::Eval::NNUE
+}  // namespace Tigerfish::Eval::NNUE
 
 
-template<Stockfish::Eval::NNUE::IndexType TransformedFeatureDimensions>
-struct std::hash<Stockfish::Eval::NNUE::FeatureTransformer<TransformedFeatureDimensions>> {
+template<Tigerfish::Eval::NNUE::IndexType TransformedFeatureDimensions>
+struct std::hash<Tigerfish::Eval::NNUE::FeatureTransformer<TransformedFeatureDimensions>> {
     std::size_t
-    operator()(const Stockfish::Eval::NNUE::FeatureTransformer<TransformedFeatureDimensions>& ft)
+    operator()(const Tigerfish::Eval::NNUE::FeatureTransformer<TransformedFeatureDimensions>& ft)
       const noexcept {
         return ft.get_content_hash();
     }

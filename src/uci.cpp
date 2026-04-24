@@ -1,13 +1,13 @@
 /*
-  Stockfish, a UCI chess playing engine derived from Glaurung 2.1
-  Copyright (C) 2004-2026 The Stockfish developers (see AUTHORS file)
+  Tigerfish, an aggressive-style UCI chess engine.
+  Copyright (C) 2026 The Tigerfish developers
 
-  Stockfish is free software: you can redistribute it and/or modify
+  Tigerfish is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
 
-  Stockfish is distributed in the hope that it will be useful,
+  Tigerfish is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
@@ -40,7 +40,7 @@
 #include "types.h"
 #include "ucioption.h"
 
-namespace Stockfish {
+namespace Tigerfish {
 
 constexpr auto BenchmarkCommand = "speedtest";
 
@@ -167,13 +167,12 @@ void UCIEngine::loop() {
             engine.generate_training_data(is);
         else if (token == "--help" || token == "help" || token == "--license" || token == "license")
             sync_cout
-              << "\nTigerfish is an aggressive-style UCI chess engine derived from Stockfish."
+              << "\nTigerfish is an aggressive-style UCI chess engine."
                  "\nIt is released as free software licensed under the GNU GPLv3 License."
                  "\nTigerfish implements the Universal Chess Interface (UCI) protocol."
                  "\nTiger-specific options: TigerMode (bool), TigerAggression (0-100),"
                  "\n  TigerRisk (0-100), TigerAntiDraw (0-100)."
-                 "\nUpstream Stockfish: https://github.com/official-stockfish/Stockfish"
-                 "\nor read the corresponding README.md and Copying.txt files distributed along with this program.\n"
+                 "\nSee the README.md and Copying.txt files distributed along with this program.\n"
               << sync_endl;
         else if (!token.empty() && token[0] != '#')
             sync_cout << "Unknown command: '" << cmd << "'. Type help for more information."
@@ -516,7 +515,7 @@ WinRateParams win_rate_params(const Position& pos) {
     // The fitted model only uses data for material counts in [17, 78], and is anchored at count 58.
     double m = std::clamp(material, 17, 78) / 58.0;
 
-    // Return a = p_a(material) and b = p_b(material), see github.com/official-stockfish/WDL_model
+    // Return a = p_a(material) and b = p_b(material), see the WDL model documentation
     constexpr double as[] = {-72.32565836, 185.93832038, -144.58862193, 416.44950446};
     constexpr double bs[] = {83.86794042, -136.06112997, 69.98820887, 47.62901433};
 
@@ -676,4 +675,4 @@ void UCIEngine::terminate_on_critical_error(const std::string& fullCommand,
     std::exit(1);
 }
 
-}  // namespace Stockfish
+}  // namespace Tigerfish
