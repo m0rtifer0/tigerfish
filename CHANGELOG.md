@@ -4,15 +4,10 @@
 
 ### Added
 - `generate_training_data` UCI command baked into the engine.
-  Self-play training data generation now runs with Tiger modifications
-  active.
-- Colab notebooks for NNUE training on Google Colab Pro
-  (`training/colab/01_tiger_train.ipynb`,
-   `training/colab/02_tiger_selfplay_colab.ipynb`,
-   `training/colab/03_tiger_full_pipeline.ipynb`).
-- Python pipeline scripts: `selfplay.py`, `train_tiger.py`,
-  `export_nnue.py`, `embed_net.py`.
+  Self-play `.binpack` data generation now runs with Tiger modifications
+  active and is available to any NNUE trainer.
 - `DESIGN.md` with a full internal design write-up.
+- `CHANGELOG.md`, `CONTRIBUTING.md`, `AUTHORS`, and `Copying.txt`.
 
 ### Fixed
 - Infinite loop in `sfen_pack()` caused by `Rank` enum being `uint8_t`;

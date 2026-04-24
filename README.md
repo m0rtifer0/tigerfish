@@ -21,9 +21,9 @@ etc.).
 - **Sharpness-aware effects.** Every Tiger bias is scaled by a positional
   *sharpness* signal (0–256). In quiet endgames the engine plays with a cool
   head; in king-attack positions it leans in hard.
-- **Built-in training pipeline.** The `generate_training_data` UCI command
-  generates self-play `.binpack` data directly inside the engine — with all
-  Tiger modifications active — for NNUE fine-tuning.
+- **Built-in self-play data generator.** The `generate_training_data` UCI
+  command produces `.binpack` training data directly inside the engine with
+  all Tiger modifications active — ready to feed into any NNUE trainer.
 - **Strong by default.** With `TigerMode = false` the engine plays a
   conventional, strong baseline. Tiger features are additive and bounded.
 
@@ -151,66 +151,34 @@ To replace the embedded net:
 2. Update `EvalFileDefaultNameBig` in [`src/evaluate.h`](src/evaluate.h).
 3. Rebuild.
 
-The helper script [`training/embed_net.py`](training/embed_net.py)
-automates these three steps.
-
 ---
 
-## Training Pipeline
+## Self-Play Data Generation
 
-Tigerfish ships with an end-to-end NNUE fine-tuning pipeline:
-
-```
-Self-play  →  binpack data  →  Train (nnue-pytorch)  →  .nnue  →  Embed
-```
-
-### 1. Self-Play Data Generation
-
-The `generate_training_data` UCI command runs self-play games at a fixed
-depth and writes the positions to a `.binpack` file. Tiger modifications are
-active during self-play, so the generated data reflects Tigerfish's actual
-style.
-
-Direct UCI:
+Tigerfish exposes a `generate_training_data` UCI command that runs self-play
+games at a fixed depth and writes the positions to a `.binpack` file. All
+Tiger modifications are active during self-play, so the generated data
+reflects Tigerfish's actual style.
 
 ```bash
 echo "generate_training_data depth 9 count 10000000 output_file_name train.binpack" \
   | ./src/tigerfish
 ```
 
-Python wrapper (auto-numbers output files):
+Parameters:
 
-```bash
-python3 training/selfplay.py --count 10_000_000 --depth 9 --threads 12
-```
+| Parameter            | Default  | Meaning                                          |
+|----------------------|----------|--------------------------------------------------|
+| `depth`              | 9        | Fixed search depth per position                  |
+| `count`              | 10000000 | Target number of positions                       |
+| `eval_limit`         | 3000     | Absolute cp value above which the game is resigned |
+| `random_move_count`  | 8        | Opening random moves for position diversity     |
+| `write_min_ply`      | 16       | First ply recorded (skips forced random opening) |
+| `write_max_ply`      | 400      | Maximum game length before draw adjudication    |
+| `keep_draws`         | 1        | Include drawn games in the output               |
+| `output_file_name`   | –        | Output path (`.binpack` suffix added automatically) |
 
-### 2. Train
-
-Requires `nnue-pytorch` and PyTorch with CUDA.
-See [`training/train_tiger.sh`](training/train_tiger.sh) for the prerequisite
-install commands.
-
-```bash
-python3 training/train_tiger.py \
-    --max-epochs 400 \
-    --batch-size 16384 \
-    --resume-from-model training/nets/base_net.pt
-```
-
-### 3. Export & Embed
-
-```bash
-python3 training/export_nnue.py training/runs/tiger_finetune
-python3 training/embed_net.py   # copies to src/, patches evaluate.h, rebuilds
-```
-
-### Google Colab (Pro)
-
-Three ready-to-run notebooks are included for training on Colab Pro GPUs:
-
-- [`training/colab/01_tiger_train.ipynb`](training/colab/01_tiger_train.ipynb) – NNUE fine-tuning
-- [`training/colab/02_tiger_selfplay_colab.ipynb`](training/colab/02_tiger_selfplay_colab.ipynb) – Self-play data generation
-- [`training/colab/03_tiger_full_pipeline.ipynb`](training/colab/03_tiger_full_pipeline.ipynb) – End-to-end pipeline in one notebook
+The output `.binpack` file can be consumed by any standard NNUE trainer.
 
 ---
 
@@ -224,19 +192,13 @@ tigerfish/
 │   ├── evaluate.cpp / evaluate.h # Tiger optimism blending
 │   ├── uci.cpp / ucioption.cpp   # UCI protocol + Tiger options
 │   ├── nnue/                     # NNUE architecture + network loader
-│   └── tools/                    # generate_training_data + sfen packer
-├── training/
-│   ├── selfplay.py               # Python wrapper around UCI generate_training_data
-│   ├── train_tiger.py            # Wrapper around nnue-pytorch/train.py
-│   ├── export_nnue.py            # .ckpt → .nnue serialization
-│   ├── embed_net.py              # Embed .nnue into engine and rebuild
-│   ├── train_tiger.sh            # All-in-one bash pipeline
-│   ├── colab/                    # Google Colab notebooks
-│   ├── data/                     # Generated .binpack training data
-│   ├── runs/                     # Training run outputs (checkpoints, logs)
-│   └── nets/                     # Exported .nnue files
+│   ├── tools/                    # generate_training_data + sfen packer
+│   └── Makefile                  # Build system
 ├── README.md
 ├── DESIGN.md                     # Deep-dive design notes
+├── CHANGELOG.md                  # Release history
+├── CONTRIBUTING.md               # Contribution guide
+├── AUTHORS                       # List of contributors
 └── Copying.txt                   # GPLv3 license text
 ```
 

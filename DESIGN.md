@@ -230,7 +230,6 @@ Key design choices:
 | Move ordering              | [`movepick.cpp`](src/movepick.cpp)                                                                       |
 | UCI options                | [`ucioption.cpp`](src/ucioption.cpp), [`engine.cpp`](src/engine.cpp), [`uci.cpp`](src/uci.cpp)           |
 | Training data generator    | [`tools/training_data_generator.cpp`](src/tools/training_data_generator.cpp), [`tools/sfen_packer.cpp`](src/tools/sfen_packer.cpp) |
-| Python tooling             | [`training/selfplay.py`](training/selfplay.py), [`training/train_tiger.py`](training/train_tiger.py), [`training/export_nnue.py`](training/export_nnue.py), [`training/embed_net.py`](training/embed_net.py) |
 
 ---
 
